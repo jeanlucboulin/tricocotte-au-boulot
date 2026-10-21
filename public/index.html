@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#3d7652">
+  <title>Tricocotte au boulot</title>
+  <style>
+    :root { --ink:#20382c; --green:#3d7652; --cream:#fbf7ed; --paper:#fffdf8; --line:#d9dfcc; --orange:#ee9a3e; --red:#9b4635; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; background:linear-gradient(145deg,#f5efdd,#fbf8ee 48%,#e5eed9); color:var(--ink); font:16px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    .shell { width:min(100%,760px); min-height:100vh; margin:auto; padding:20px 16px 42px; }
+    header { display:flex; justify-content:space-between; gap:12px; align-items:center; margin:4px 0 22px; }
+    .brand { display:flex; align-items:center; gap:10px; font-weight:850; letter-spacing:-.03em; font-size:1.28rem; line-height:1.05; }
+    .egg { width:31px; height:39px; border-radius:55% 55% 48% 48%; background:#fffdf6; border:2px solid #e7c875; box-shadow:inset 4px -2px #f9eed3; display:grid; place-items:center; font-size:.95rem; }
+    button,input { font:inherit; }
+    button { cursor:pointer; }
+    .mode,.outline { border:1px solid #b9c9a8; background:#eef3e5; color:var(--ink); padding:8px 11px; border-radius:12px; font-weight:750; }
+    .card { background:rgba(255,253,248,.94); border:1px solid rgba(170,187,150,.7); border-radius:22px; padding:24px; box-shadow:0 14px 35px rgba(59,81,48,.10); }
+    h1 { font-size:clamp(1.8rem,5vw,2.55rem); line-height:1.05; letter-spacing:-.05em; margin:0 0 10px; }
+    h2 { font-size:1.2rem; margin:0 0 6px; }
+    p { margin:0; }
+    .intro { color:#526457; max-width:56ch; }
+    .pill { display:inline-block; padding:5px 9px; border-radius:100px; font-size:.82rem; font-weight:800; background:#fbedcf; color:#71430c; margin:18px 0 6px; }
+    form { margin-top:20px; }
+    label { display:block; font-weight:750; margin:18px 0 7px; }
+    input[type=text],input[type=tel],input[type=password] { width:100%; border:1px solid #cdd7bf; background:#fff; border-radius:12px; padding:12px 13px; color:var(--ink); }
+    .sizes { display:grid; gap:10px; }
+    .size { display:flex; align-items:center; gap:12px; padding:13px; background:#fff; border:1px solid #cfdbbf; border-radius:14px; }
+    .size.active { border-color:var(--green); background:#f0f7ea; box-shadow:0 0 0 2px #d4e7ca; }
+    .size-info { flex:1; min-width:0; }
+    .size-info b { display:block; }
+    .size-info span { font-size:.88rem; color:#5a6a5c; }
+    .stepper { display:flex; align-items:center; gap:4px; }
+    .stepper button { width:38px; height:38px; border-radius:50%; border:1px solid #91ab88; background:#fff; color:var(--green); font-size:1.3rem; font-weight:800; line-height:1; padding:0; }
+    .stepper button:disabled { opacity:.35; cursor:default; }
+    .stepper output { min-width:30px; text-align:center; font-weight:900; font-size:1.1rem; }
+    .total { display:flex; justify-content:space-between; align-items:baseline; margin-top:18px; padding:13px 15px; border-radius:14px; background:#edf3e5; font-weight:800; }
+    .total strong { font-size:1.4rem; }
+    .submit { border:0; width:100%; cursor:pointer; margin-top:18px; padding:14px; border-radius:13px; background:var(--green); color:#fff; font-weight:800; box-shadow:0 5px 0 #27513a; }
+    .submit:disabled { opacity:.65; cursor:default; }
+    .fine { font-size:.82rem; color:#677568; text-align:center; margin-top:16px; }
+    .notice { padding:15px; border-radius:14px; margin-top:18px; background:#e9f4e2; color:#23492f; border:1px solid #c6dcb9; }
+    .error { background:#f9e8e1; color:#7b2f21; border-color:#edc3b6; }
+    .hidden { display:none!important; }
+    .dashboard { display:grid; gap:18px; }
+    .admin-top { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+    .sub { color:#617063; font-size:.92rem; }
+    .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+    .stat { border-radius:15px; background:#edf3e5; padding:14px 11px; }
+    .stat strong { font-size:1.7rem; display:block; line-height:1; margin-bottom:4px; }
+    .stat span { font-size:.78rem; color:#5a6b5b; font-weight:700; }
+    .toolbar { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .outline { background:#fff; color:var(--green); border-color:var(--green); padding:10px 12px; }
+    .danger { color:var(--red); border-color:#c98b7d; }
+    .delivery { background:var(--paper); border:1px solid var(--line); border-radius:17px; overflow:hidden; }
+    .delivery.past { opacity:.72; }
+    .delivery-head { padding:16px 16px 8px; }
+    .tag { display:inline-block; font-size:.74rem; font-weight:800; padding:3px 8px; border-radius:100px; background:#eef3e5; color:#4c5c4a; margin-left:8px; vertical-align:middle; }
+    .tag.past { background:#f3e6d8; color:#7a5426; }
+    .prep { padding:0 16px 13px; display:flex; flex-wrap:wrap; gap:7px; }
+    .chip { font-size:.85rem; font-weight:800; padding:4px 10px; border-radius:100px; background:#fae5bb; color:#754907; }
+    .chip.money { background:#e0eed6; color:#23492f; }
+    .orders { border-top:1px solid #e1e6d8; }
+    .order { padding:13px 16px; display:flex; align-items:center; gap:11px; border-bottom:1px solid #edf0e8; }
+    .order:last-child { border:0; }
+    .qty { width:38px; height:38px; display:grid; place-items:center; flex:0 0 auto; border-radius:50%; background:#fae5bb; color:#754907; font-weight:900; }
+    .details { flex:1; min-width:0; }
+    .details b { display:block; }
+    .details small { color:#647064; display:block; }
+    .price { font-weight:800; white-space:nowrap; }
+    .check { appearance:none; width:23px; height:23px; border:2px solid #91ab88; border-radius:7px; margin:0; cursor:pointer; flex:0 0 auto; }
+    .check:checked { background:var(--green); box-shadow:inset 0 0 0 4px #fff; }
+    .empty { padding:17px 16px; color:#68756a; font-size:.93rem; }
+    .clear-btn { margin:0 16px 16px; }
+    .modal { position:fixed; inset:0; z-index:2; display:grid; place-items:center; padding:20px; background:rgba(28,47,34,.45); }
+    .modal-box { width:min(100%,380px); background:var(--paper); border-radius:20px; padding:22px; box-shadow:0 18px 50px rgba(0,0,0,.22); }
+    .modal-box h2 { font-size:1.4rem; }
+    .modal-box form { margin-top:14px; }
+    .modal-actions { display:flex; gap:10px; margin-top:18px; }
+    .modal-actions button { flex:1; }
+    .modal-actions .submit { margin-top:0; }
+    .submit.danger-fill { background:var(--red); box-shadow:0 5px 0 #6f2f22; }
+    @media (max-width:440px) { .card { padding:20px 16px; } .stats { gap:7px; } .stat { padding:12px 8px; } .stat strong { font-size:1.4rem; } .order { gap:9px; padding:12px; } }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div class="brand"><div class="egg">🥚</div>Tricocotte<br>au boulot</div>
+      <button id="adminOpen" class="mode" type="button">Espace Christelle</button>
+    </header>
+
+    <section id="customer" class="card">
+      <h1>Vous aimez les œufs de Christelle&nbsp;?</h1>
+      <p class="intro">Laurent vous les apporte chaque lundi matin sur votre lieu de travail. Commandez vos boîtes de 6 œufs, dans la taille de votre choix.</p>
+      <div class="pill" id="deliveryPill">Livraison le lundi matin</div>
+      <form id="orderForm">
+        <label for="name">Votre nom</label>
+        <input id="name" name="name" type="text" autocomplete="name" required maxlength="80" placeholder="Ex. Marie Dupont">
+        <label for="phone">Téléphone <small>(facultatif)</small></label>
+        <input id="phone" name="phone" type="tel" inputmode="tel" maxlength="30" placeholder="Pour vous prévenir si besoin">
+        <label>Mes boîtes de 6 œufs</label>
+        <div class="sizes" id="sizes"></div>
+        <div class="total"><span>Total à régler à la livraison</span><strong id="totalPrice">0,00 €</strong></div>
+        <button id="orderButton" class="submit" type="submit" disabled>Confirmer ma commande</button>
+      </form>
+      <div id="customerMessage" class="notice hidden" aria-live="polite"></div>
+      <p class="fine">Commandes ouvertes jusqu’au dimanche 18 h pour le lundi suivant.</p>
+    </section>
+
+    <section id="admin" class="dashboard hidden">
+      <div class="admin-top"><div><h1>Les commandes</h1><p class="sub">Groupées par lundi de livraison</p></div><button id="back" class="mode" type="button">← Commande</button></div>
+      <div class="stats">
+        <div class="stat"><strong id="totalBoxes">0</strong><span>boîtes à venir</span></div>
+        <div class="stat"><strong id="totalOrders">0</strong><span>commandes à venir</span></div>
+        <div class="stat"><strong id="totalMoney">0 €</strong><span>à encaisser</span></div>
+      </div>
+      <div class="toolbar"><button id="export" class="outline" type="button">Copier la liste à venir</button></div>
+      <div id="lists"></div>
+      <p class="fine">Les commandes sont enregistrées en ligne et visibles uniquement depuis l’espace Christelle.</p>
+    </section>
+  </main>
+
+  <div id="loginModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+    <div class="modal-box">
+      <h2 id="loginTitle">Espace Christelle</h2>
+      <p class="sub">Saisissez votre mot de passe pour voir les commandes.</p>
+      <form id="loginForm">
+        <label for="password">Mot de passe</label>
+        <input id="password" type="password" autocomplete="current-password" required>
+        <div id="loginMessage" class="notice error hidden" aria-live="polite"></div>
+        <div class="modal-actions"><button id="cancelLogin" class="outline" type="button">Annuler</button><button class="submit" type="submit">Ouvrir</button></div>
+      </form>
+    </div>
+  </div>
+
+  <div id="confirmModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+    <div class="modal-box">
+      <h2 id="confirmTitle">Effacer cette livraison ?</h2>
+      <p id="confirmBody" class="sub"></p>
+      <div class="modal-actions"><button id="confirmCancel" class="outline" type="button">Annuler</button><button id="confirmOk" class="submit danger-fill" type="button">Effacer</button></div>
+    </div>
+  </div>
+
+  <script>
+    const endpoint = "/.netlify/functions/orders";
+    const SIZES = [
+      { id: "M", label: "Taille M", cents: 240, hint: "Moyens" },
+      { id: "L", label: "Taille L", cents: 280, hint: "Gros" },
+      { id: "XL", label: "Taille XL", cents: 300, hint: "Très gros" }
+    ];
+    const MAX_PER_SIZE = 10;
+    const state = { token: sessionStorage.getItem("tricocotte_boulot_token") || "", orders: [], qty: { M: 0, L: 0, XL: 0 } };
+    const $ = (selector) => document.querySelector(selector);
+
+    const euros = (cents) => (cents / 100).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
+
+    function message(element, text, error) {
+      element.textContent = text;
+      element.classList.toggle("error", Boolean(error));
+      element.classList.remove("hidden");
+    }
+
+    async function api(method, body) {
+      const headers = { "Content-Type": "application/json" };
+      if (state.token) headers.Authorization = "Bearer " + state.token;
+      const response = await fetch(endpoint, { method: method, headers: headers, body: body ? JSON.stringify(body) : undefined });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || "Un problème est survenu.");
+      return data;
+    }
+
+    function setView(view) {
+      const admin = view === "admin";
+      $("#customer").classList.toggle("hidden", admin);
+      $("#admin").classList.toggle("hidden", !admin);
+      $("#adminOpen").classList.toggle("hidden", admin);
+    }
+
+    function formatDateFR(iso) {
+      const date = new Date(iso + "T00:00:00Z");
+      const text = date.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" });
+      return text.charAt(0).toUpperCase() + text.slice(1);
+    }
+
+    function todayISO() {
+      const now = new Date();
+      return now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0") + "-" + String(now.getDate()).padStart(2, "0");
+    }
+
+    // ---------- Formulaire collègues ----------
+    function renderSizes() {
+      const wrap = $("#sizes");
+      wrap.replaceChildren();
+      SIZES.forEach((size) => {
+        const row = document.createElement("div");
+        row.className = "size";
+        row.dataset.size = size.id;
+        row.innerHTML =
+          '<div class="size-info"><b></b><span></span></div>' +
+          '<div class="stepper"><button type="button" data-act="minus" aria-label="Retirer une boîte">−</button><output aria-live="polite">0</output><button type="button" data-act="plus" aria-label="Ajouter une boîte">+</button></div>';
+        row.querySelector("b").textContent = size.label + " — " + euros(size.cents);
+        row.querySelector("span").textContent = "Boîte de 6 œufs · " + size.hint;
+        row.querySelector('[data-act="minus"]').addEventListener("click", () => changeQty(size.id, -1));
+        row.querySelector('[data-act="plus"]').addEventListener("click", () => changeQty(size.id, 1));
+        wrap.append(row);
+      });
+      refreshForm();
+    }
+
+    function changeQty(id, delta) {
+      state.qty[id] = Math.max(0, Math.min(MAX_PER_SIZE, state.qty[id] + delta));
+      refreshForm();
+    }
+
+    function refreshForm() {
+      let boxes = 0;
+      let cents = 0;
+      SIZES.forEach((size) => {
+        const qty = state.qty[size.id];
+        boxes += qty;
+        cents += qty * size.cents;
+        const row = document.querySelector('.size[data-size="' + size.id + '"]');
+        row.classList.toggle("active", qty > 0);
+        row.querySelector("output").textContent = qty;
+        row.querySelector('[data-act="minus"]').disabled = qty === 0;
+        row.querySelector('[data-act="plus"]').disabled = qty === MAX_PER_SIZE;
+      });
+      $("#totalPrice").textContent = euros(cents);
+      $("#orderButton").disabled = boxes === 0;
+    }
+
+    $("#orderForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const button = $("#orderButton");
+      const formData = new FormData(form);
+      button.disabled = true;
+      $("#customerMessage").classList.add("hidden");
+      try {
+        const data = await api("POST", { action: "create", name: formData.get("name"), phone: formData.get("phone"), items: state.qty });
+        const order = data.order;
+        message($("#customerMessage"), "Merci " + order.name + " ! Votre commande de " + describe(order.items) + " (" + euros(order.totalCents) + ") est enregistrée. Livraison le " + formatDateFR(order.deliveryDate).toLowerCase() + " au matin.", false);
+        form.reset();
+        state.qty = { M: 0, L: 0, XL: 0 };
+      } catch (error) {
+        message($("#customerMessage"), error.message, true);
+      } finally {
+        refreshForm();
+      }
+    });
+
+    function describe(items) {
+      return SIZES.filter((size) => items[size.id] > 0).map((size) => items[size.id] + " × " + size.id).join(" + ");
+    }
+
+    // ---------- Espace Christelle ----------
+    async function loadOrders() {
+      const data = await api("GET");
+      state.orders = data.orders;
+      renderOrders();
+    }
+
+    function sumItems(orders) {
+      const totals = { M: 0, L: 0, XL: 0 };
+      orders.forEach((order) => SIZES.forEach((size) => { totals[size.id] += order.items[size.id] || 0; }));
+      return totals;
+    }
+    const sumBoxes = (orders) => orders.reduce((total, order) => total + order.boxes, 0);
+    const sumCents = (orders) => orders.reduce((total, order) => total + order.totalCents, 0);
+
+    function askConfirm(title, body) {
+      return new Promise((resolve) => {
+        $("#confirmTitle").textContent = title;
+        $("#confirmBody").textContent = body;
+        $("#confirmModal").classList.remove("hidden");
+        const okBtn = $("#confirmOk");
+        const cancelBtn = $("#confirmCancel");
+        const cleanup = (result) => {
+          $("#confirmModal").classList.add("hidden");
+          okBtn.removeEventListener("click", onOk);
+          cancelBtn.removeEventListener("click", onCancel);
+          resolve(result);
+        };
+        const onOk = () => cleanup(true);
+        const onCancel = () => cleanup(false);
+        okBtn.addEventListener("click", onOk);
+        cancelBtn.addEventListener("click", onCancel);
+      });
+    }
+
+    function makeOrderRow(order) {
+      const row = document.createElement("div");
+      row.className = "order";
+      const qty = document.createElement("div");
+      qty.className = "qty";
+      qty.textContent = order.boxes;
+      const details = document.createElement("div");
+      details.className = "details";
+      const name = document.createElement("b");
+      name.textContent = order.name;
+      const small = document.createElement("small");
+      small.textContent = describe(order.items) + (order.phone ? " · " + order.phone : "");
+      details.append(name, small);
+      const price = document.createElement("div");
+      price.className = "price";
+      price.textContent = euros(order.totalCents);
+      const check = document.createElement("input");
+      check.className = "check";
+      check.type = "checkbox";
+      check.checked = order.done;
+      check.setAttribute("aria-label", "Commande livrée à " + order.name);
+      check.addEventListener("change", async () => {
+        check.disabled = true;
+        try {
+          await api("PATCH", { id: order.id, done: check.checked });
+          order.done = check.checked;
+        } catch (error) {
+          check.checked = !check.checked;
+          alert(error.message);
+        } finally {
+          check.disabled = false;
+        }
+      });
+      row.append(qty, details, price, check);
+      return row;
+    }
+
+    function makeDeliverySection(delivery) {
+      const section = document.createElement("section");
+      section.className = "delivery" + (delivery.isPast ? " past" : "");
+      const head = document.createElement("div");
+      head.className = "delivery-head";
+      const heading = document.createElement("h2");
+      heading.textContent = formatDateFR(delivery.date) + " · matin";
+      const tag = document.createElement("span");
+      tag.className = "tag" + (delivery.isPast ? " past" : "");
+      tag.textContent = delivery.isPast ? "Livraison passée" : "À venir";
+      heading.append(tag);
+      head.append(heading);
+
+      const prep = document.createElement("div");
+      prep.className = "prep";
+      const totals = sumItems(delivery.orders);
+      SIZES.forEach((size) => {
+        const chip = document.createElement("span");
+        chip.className = "chip";
+        chip.textContent = totals[size.id] + " × " + size.id;
+        prep.append(chip);
+      });
+      const money = document.createElement("span");
+      money.className = "chip money";
+      money.textContent = sumBoxes(delivery.orders) + " boîtes · " + euros(sumCents(delivery.orders));
+      prep.append(money);
+
+      const list = document.createElement("div");
+      list.className = "orders";
+      delivery.orders.forEach((order) => list.append(makeOrderRow(order)));
+
+      const clearBtn = document.createElement("button");
+      clearBtn.className = "outline danger clear-btn";
+      clearBtn.type = "button";
+      clearBtn.textContent = "Effacer cette livraison";
+      clearBtn.addEventListener("click", async () => {
+        const n = delivery.orders.length;
+        const ok = await askConfirm("Effacer cette livraison ?", "Vous allez effacer définitivement " + n + " commande" + (n > 1 ? "s" : "") + " du " + formatDateFR(delivery.date).toLowerCase() + ".");
+        if (!ok) return;
+        clearBtn.disabled = true;
+        try {
+          await api("DELETE", { deliveryDate: delivery.date });
+          await loadOrders();
+        } catch (error) {
+          alert(error.message);
+          clearBtn.disabled = false;
+        }
+      });
+      section.append(head, prep, list, clearBtn);
+      return section;
+    }
+
+    function groupByDelivery() {
+      const today = todayISO();
+      const groups = new Map();
+      state.orders.forEach((order) => {
+        if (!groups.has(order.deliveryDate)) groups.set(order.deliveryDate, []);
+        groups.get(order.deliveryDate).push(order);
+      });
+      return Array.from(groups.entries())
+        .map(([date, orders]) => ({ date, orders, isPast: date < today }))
+        .sort((a, b) => a.date.localeCompare(b.date));
+    }
+
+    function renderOrders() {
+      const deliveries = groupByDelivery();
+      const upcoming = deliveries.filter((delivery) => !delivery.isPast).flatMap((delivery) => delivery.orders);
+      $("#totalBoxes").textContent = sumBoxes(upcoming);
+      $("#totalOrders").textContent = upcoming.length;
+      $("#totalMoney").textContent = euros(sumCents(upcoming)).replace(",00", "");
+      const lists = $("#lists");
+      lists.replaceChildren();
+      if (deliveries.length === 0) {
+        const empty = document.createElement("p");
+        empty.className = "empty";
+        empty.textContent = "Aucune commande pour le moment.";
+        lists.append(empty);
+      } else {
+        deliveries.forEach((delivery) => lists.append(makeDeliverySection(delivery)));
+      }
+    }
+
+    $("#adminOpen").addEventListener("click", () => {
+      $("#loginMessage").classList.add("hidden");
+      $("#loginModal").classList.remove("hidden");
+      $("#password").focus();
+    });
+    $("#cancelLogin").addEventListener("click", () => $("#loginModal").classList.add("hidden"));
+    $("#loginForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      try {
+        const data = await api("POST", { action: "login", password: $("#password").value });
+        state.token = data.token;
+        sessionStorage.setItem("tricocotte_boulot_token", state.token);
+        $("#password").value = "";
+        $("#loginModal").classList.add("hidden");
+        setView("admin");
+        await loadOrders();
+      } catch (error) {
+        message($("#loginMessage"), error.message, true);
+      }
+    });
+    $("#back").addEventListener("click", () => setView("customer"));
+
+    $("#export").addEventListener("click", async () => {
+      const text = groupByDelivery()
+        .filter((delivery) => !delivery.isPast)
+        .map((delivery) => {
+          const totals = sumItems(delivery.orders);
+          const header = formatDateFR(delivery.date) + " — " + SIZES.map((size) => totals[size.id] + " × " + size.id).join(", ") + " (" + euros(sumCents(delivery.orders)) + ")";
+          const lines = delivery.orders.map((order) => "- " + order.name + " : " + describe(order.items) + " (" + euros(order.totalCents) + ")" + (order.phone ? " · " + order.phone : ""));
+          return header + "\n" + lines.join("\n");
+        })
+        .join("\n\n") || "Aucune commande à venir.";
+      try {
+        await navigator.clipboard.writeText(text);
+        $("#export").textContent = "Liste copiée !";
+        setTimeout(() => { $("#export").textContent = "Copier la liste à venir"; }, 1600);
+      } catch {
+        prompt("Copiez cette liste :", text);
+      }
+    });
+
+    renderSizes();
+  </script>
+</body>
+</html>
